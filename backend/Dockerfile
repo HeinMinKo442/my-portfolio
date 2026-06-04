@@ -1,15 +1,26 @@
 FROM php:8.2-fpm-alpine
 
-# Install system dependencies
+# Install system dependencies (Alpine အတွက် သေချာစစ်ဆေးထားသော Packages များ)
 RUN apk add --no-cache \
     nginx \
     supervisor \
+    curl \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    zip \
+    libzip-dev \
+    git \
     postgresql-dev \
     icu-dev \
-    libzip-dev \
     oniguruma-dev \
-    libxml2-dev \
+    libxml2-dev
+
+# Install PHP extensions
+# (mbstring နှင့် tokenizer တို့ကို လိုအပ်သော dependency များနှင့်အတူ စနစ်တကျ သွင်းခြင်း)
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
+    pdo \
     pdo_pgsql \
     pgsql \
     mbstring \
@@ -17,41 +28,27 @@ RUN apk add --no-cache \
     zip \
     xml \
     bcmath \
-    tokenizer \
-    fileinfo
+    gd
 
-# Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# Get latest Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
-WORKDIR /var/www/html
+WORKDIR /var/www
 
-# Copy Laravel project files
+# Copy project files
 COPY . .
 
-# Install PHP dependencies (no dev in production)
-RUN composer install --optimize-autoloader --no-dev --no-interaction --no-progress
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader
 
-# Cache and optimize Laravel
-RUN php artisan optimize:clear
+# Setup Nginx and Supervisor Configuration
+COPY ./nginx.conf /etc/nginx/nginx.conf
+COPY ./supervisor.conf /etc/supervisor/conf.d/supervisor.conf
 
-# Create and set permissions for storage and bootstrap/cache
-RUN mkdir -p storage/framework/{sessions,views,cache} \
-    storage/logs \
-    bootstrap/cache \
-    && chmod -R 775 storage \
-    && chmod -R 775 bootstrap/cache \
-    && chown -R www-data:www-data storage \
-    && chown -R www-data:www-data bootstrap/cache
+# Permissions
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# Copy Nginx config
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Copy Supervisor config
-COPY supervisor.conf /etc/supervisor/supervisord.conf
-
-# Expose port 10000
 EXPOSE 10000
 
-# Start Supervisor to manage both php-fpm and nginx
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisor.conf"]
