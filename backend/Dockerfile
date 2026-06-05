@@ -51,4 +51,5 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 EXPOSE 10000
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisor.conf"]
+# Server စပွင့်တာနဲ့ Migration ရော Storage Link ပါ အလိုအလျောက် ပတ်ခိုင်းသည့်စနစ်
+CMD php artisan migrate --force && php artisan storage:link && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisor.conf
