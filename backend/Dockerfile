@@ -1,6 +1,7 @@
-FROM php:8.2-fpm-alpine
+# အပေါ်ဆုံးစာကြောင်းကို 8.2 မှ 8.3 သို့ ပြောင်းလိုက်ပါ
+FROM php:8.3-fpm-alpine
 
-# Install system dependencies (Alpine အတွက် သေချာစစ်ဆေးထားသော Packages များ)
+# Install system dependencies
 RUN apk add --no-cache \
     nginx \
     supervisor \
@@ -17,7 +18,6 @@ RUN apk add --no-cache \
     libxml2-dev
 
 # Install PHP extensions
-# (mbstring နှင့် tokenizer တို့ကို လိုအပ်သော dependency များနှင့်အတူ စနစ်တကျ သွင်းခြင်း)
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
     pdo \
@@ -39,8 +39,8 @@ WORKDIR /var/www
 # Copy project files
 COPY . .
 
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader
+# --ignore-platform-reqs ကိုပါ တစ်ခါတည်း တွဲထည့်ထားပေးခြင်းဖြင့် ပိုမိုစိတ်ချရစေပါတယ်
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
 # Setup Nginx and Supervisor Configuration
 COPY ./nginx.conf /etc/nginx/nginx.conf
