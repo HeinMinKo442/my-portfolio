@@ -51,5 +51,5 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 EXPOSE 10000
 
-# config:clear ကိုပါ ထည့်သွင်းပေးလိုက်ခြင်းဖြင့် Render Env အသစ်တွေကို တိုက်ရိုက်ဖတ်စေပါတယ်
-CMD php artisan config:clear && php artisan migrate --force && php artisan storage:link && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisor.conf
+# DB_URL ကို Docker Startup မှာ တိုက်ရိုက် Force သတ်မှတ်ပြီး ပတ်ခိုင်းခြင်း
+CMD php artisan config:clear && DB_URL="postgresql://postgres:portfolio@2026050@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres" php artisan migrate --force && php artisan storage:link && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisor.conf
