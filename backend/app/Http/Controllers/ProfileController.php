@@ -60,5 +60,6 @@ class ProfileController extends Controller
     public function edit()
     {
         logger("Hello");
+        logger(kjasljfla);
     }
 }
