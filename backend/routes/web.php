@@ -6,11 +6,15 @@ use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\ProjectController as AdminProjectController;
 use App\Http\Controllers\Admin\SkillController as AdminSkillController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TestAiReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/test-ai-review', [TestAiReviewController::class, 'index'])->name('test-ai-review.index');
+Route::post('/test-ai-review', [TestAiReviewController::class, 'store'])->name('test-ai-review.store');
 
 Route::get('/dashboard', function () {
     return redirect()->route('admin.dashboard');
