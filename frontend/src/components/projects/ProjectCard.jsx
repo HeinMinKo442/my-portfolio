@@ -1,5 +1,3 @@
-import { Github } from 'lucide-react';
-
 export default function ProjectCard({ project }) {
   const techStack = project.techStack || project.tech_stack || [];
   const githubLink = project.github || project.github_link || '#';
