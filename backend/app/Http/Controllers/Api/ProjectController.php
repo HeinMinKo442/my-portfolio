@@ -10,13 +10,16 @@ class ProjectController extends Controller
 {
     public function index()
     {
+        // retrieve in controller
+        $data = Project::query()->orderBy('sort_order')->get();
         return response()->json([
-            'data' => Project::query()->orderBy('sort_order')->get(),
+            'data' => $data,
         ]);
     }
 
     public function store(Request $request)
     {
+        // create in controller
         $project = Project::create($this->validatedData($request));
 
         return response()->json(['data' => $project], 201);
